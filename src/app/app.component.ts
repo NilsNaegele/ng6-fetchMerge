@@ -7,8 +7,7 @@ import { Subscription } from 'rxjs';
   selector: 'app-root',
   template: `
   <h1>Fetch & Merge Data</h1>
-  <div class="format">{{ userData | json }}</div>
-  <p class="format">{{ userComments | json }}</p>
+  <code class="format">{{ userDataComments | json }}</code>
   `,
   styles: [`
       .format {
@@ -19,16 +18,14 @@ import { Subscription } from 'rxjs';
 export class AppComponent implements OnInit, OnDestroy {
 
   private userSubscription: Subscription;
-  public userData: {};
-  public userComments: string[];
+  public userDataComments: any;
 
   constructor(private userService: UserService) { }
 
   private renderUserWithComments(): void {
     this.userSubscription = this.userService.invokeUserWithComments()
                             .subscribe(userWithComments => {
-                            this.userData = userWithComments[0];
-                            this.userComments = userWithComments[1];
+                            this.userDataComments = userWithComments;
     });
   }
 
