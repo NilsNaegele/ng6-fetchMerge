@@ -1,43 +1,43 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { UserService } from './user.service';
+import { Subscription } from 'rxjs';
 
 
 @Component({
   selector: 'app-root',
   template: `
   <h1>Fetch & Merge Data</h1>
-  <div class="users-comments format"></div>
+  <div class="format">{{ userData | json }}</div>
+  <p class="format">{{ userComments | json }}</p>
   `,
   styles: [`
       .format {
-        white-space: pre;
+        white-space: pre-wrap;
       }
   `]
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
 
-  public userCommentsDOM: any;
+  private userSubscription: Subscription;
+  public userData: {};
+  public userComments: string[];
 
   constructor(private userService: UserService) { }
 
-  private renderUsersComments(usersComments): HTMLElement {
-      const userElement = document.createElement('p');
-      const data = JSON.stringify(usersComments, null, 4);
-      const dataNode = document.createTextNode(data);
-      userElement.appendChild(dataNode);
-      return userElement;
-  }
-
   private renderUserWithComments(): void {
-    this.userService.invokeUserWithComments().then(userWithComments => {
-        const usersCommentsElement = this.renderUsersComments(userWithComments);
-        this.userCommentsDOM.append(usersCommentsElement);
+    this.userSubscription = this.userService.invokeUserWithComments()
+                            .subscribe(userWithComments => {
+                            this.userData = userWithComments[0];
+                            this.userComments = userWithComments[1];
     });
   }
 
   ngOnInit() {
-    this.userCommentsDOM = document.querySelector('.users-comments');
     this.renderUserWithComments();
+  }
+
+  ngOnDestroy() {
+    this.userSubscription.unsubscribe();
   }
 
 
