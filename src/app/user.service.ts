@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import 'rxjs/add/observable/forkJoin';
+
 
 @Injectable({
   providedIn: 'root'
@@ -13,16 +16,25 @@ export class UserService {
 
   constructor(private http: HttpClient) { }
 
-  private getData(url: string): Observable<any> {
-    return this.http.get<any>(url);
+  public getUserWithComments(): Observable<any> {
+    return this.fetchCombinedData(this.userDataUrl, this.userCommentsUrl);
   }
 
-
-  private fetchMerge(firstUrl: string, secondUrl: string): Observable<any> {
+  private fetchCombinedData(firstUrl: string, secondUrl: string): Observable<any> {
    return Observable.forkJoin(this.getData(firstUrl), this.getData(secondUrl));
   }
 
-  public invokeUserWithComments(): Observable<any> {
-    return this.fetchMerge(this.userDataUrl, this.userCommentsUrl);
+  private getData(url: string): Observable<any> {
+    return this.http.get<any[]>(url).pipe(
+      catchError(this.handleError('getData', []))
+    );
   }
+
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+      console.error(`${operation} failed: ${error.message}`);
+      return of(result as T);
+    };
+  }
+
 }

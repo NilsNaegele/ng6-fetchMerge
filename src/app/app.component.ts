@@ -23,12 +23,15 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(private userService: UserService) { }
 
   private renderUserWithComments(): void {
-    this.userSubscription = this.userService.invokeUserWithComments()
+    this.userSubscription = this.userService.getUserWithComments()
                             .subscribe(userWithComments => {
-                            this.userDataComments = userWithComments ?
-                             {User: { ...userWithComments[0]}, Coments: userWithComments[1]}
-                             : userWithComments;
+                            this.userDataComments = this.mergeUserData(userWithComments);
     });
+  }
+
+  private mergeUserData(userCommentsData: any): any {
+    return userCommentsData ? { User: { ...userCommentsData[0]}, Coments: userCommentsData[1] }
+                            : userCommentsData;
   }
 
   ngOnInit() {
