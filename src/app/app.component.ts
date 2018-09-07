@@ -25,7 +25,9 @@ export class AppComponent implements OnInit, OnDestroy {
   private renderUserWithComments(): void {
     this.userSubscription = this.userService.invokeUserWithComments()
                             .subscribe(userWithComments => {
-                            this.userDataComments = userWithComments;
+                            this.userDataComments = userWithComments ?
+                             {User: { ...userWithComments[0]}, Coments: userWithComments[1]}
+                             : userWithComments;
     });
   }
 
